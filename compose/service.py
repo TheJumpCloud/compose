@@ -1113,6 +1113,7 @@ class Service:
             nocache=no_cache,
             dockerfile=build_opts.get('dockerfile', None),
             cache_from=self.get_cache_from(build_opts),
+            cli_args=build_opts.get('cli_args', []),
             labels=build_opts.get('labels', None),
             buildargs=build_args,
             network_mode=build_opts.get('network', None),
@@ -1801,13 +1802,15 @@ class _CLIBuilder:
               decode=False, buildargs=None, gzip=False, shmsize=None,
               labels=None, cache_from=None, target=None, network_mode=None,
               squash=None, extra_hosts=None, platform=None, isolation=None,
-              use_config_proxy=True):
+              use_config_proxy=True, cli_args=[]):
         """
         Args:
             path (str): Path to the directory containing the Dockerfile
             buildargs (dict): A dictionary of build arguments
             cache_from (:py:class:`list`): A list of images used for build
                 cache resolution
+            cli_args (:py:class:`list`): A list of additional CLI arguments
+                to add to the build command.
             container_limits (dict): A dictionary of limits applied to each
                 container created by the build process. Valid keys:
                 - memory (int): set memory limit for build
@@ -1873,7 +1876,7 @@ class _CLIBuilder:
         command_builder.add_arg("--tag", tag)
         command_builder.add_arg("--target", target)
         command_builder.add_arg("--iidfile", iidfile)
-        args = command_builder.build([path])
+        args = command_builder.build([path]) + cli_args
 
         magic_word = "Successfully built "
         appear = False
